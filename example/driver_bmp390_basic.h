@@ -50,18 +50,25 @@ extern "C"{
  * @{
  */
 
+typedef struct {
+    bmp390_interface_t           bus_type;
+    bmp390_address_t             i2c_device_addr;
+    bmp390_spi_wire_t            spi_wire_type;
+    bmp390_bool_t                enable_i2c_watchdog_timer;
+    bmp390_iic_watchdog_period_t i2c_watch_dog_period;
+    bmp390_bool_t                enable_pressure_measurements;
+    bmp390_bool_t                enable_temperature_measurements;
+    bmp390_oversampling_t        pressure_oversampling;
+    bmp390_oversampling_t        temperature_oversampling;
+    bmp390_odr_t                 output_data_rate;
+    bmp390_filter_coefficient_t  filter_coefficient;   
+} bmp390_device_config_t;
+
 /**
- * @brief bmp390 basic example default definition
+ * @brief Initialize bmp390 config to its default values
+ * @param[out] config Where the default config values will be stored
  */
-#define BMP390_BASIC_DEFAULT_SPI_WIRE                 BMP390_SPI_WIRE_4                        /**< 4 wire spi */
-#define BMP390_BASIC_DEFAULT_IIC_WATCHDOG_TIMER       BMP390_BOOL_TRUE                         /**< enable iic watchdog timer */
-#define BMP390_BASIC_DEFAULT_IIC_WATCHDOG_PERIOD      BMP390_IIC_WATCHDOG_PERIOD_40_MS         /**< set watchdog timer period 40ms */
-#define BMP390_BASIC_DEFAULT_PRESSURE                 BMP390_BOOL_TRUE                         /**< enable pressure **/
-#define BMP390_BASIC_DEFAULT_TEMPERATURE              BMP390_BOOL_TRUE                         /**< enable temperature */
-#define BMP390_BASIC_DEFAULT_PRESSURE_OVERSAMPLING    BMP390_OVERSAMPLING_x32                  /**< pressure oversampling x32 */
-#define BMP390_BASIC_DEFAULT_TEMPERATURE_OVERSAMPLING BMP390_OVERSAMPLING_x2                   /**< temperature oversampling x2 */
-#define BMP390_BASIC_DEFAULT_ODR                      BMP390_ODR_12P5_HZ                       /**< output data rate 12.5Hz */
-#define BMP390_BASIC_DEFAULT_FILTER_COEFFICIENT       BMP390_FILTER_COEFFICIENT_15             /**< set filter coefficient 15 */
+void bmp390_device_config_set_defaults(bmp390_device_config_t *config);
 
 /**
  * @brief     basic example init
@@ -72,7 +79,7 @@ extern "C"{
  *            - 1 init failed
  * @note      none
  */
-uint8_t bmp390_basic_init(bmp390_interface_t interface, bmp390_address_t addr_pin);
+uint8_t bmp390_basic_init(bmp390_device_config_t config);
 
 /**
  * @brief  basic example deinit
@@ -94,6 +101,7 @@ uint8_t bmp390_basic_deinit(void);
  */
 uint8_t bmp390_basic_read(float *temperature_c, float *pressure_pa);
 
+uint8_t bmp390_basic_read_status(uint8_t *status);
 /**
  * @}
  */

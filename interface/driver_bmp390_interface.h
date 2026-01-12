@@ -38,10 +38,37 @@
 #define DRIVER_BMP390_INTERFACE_H
 
 #include "driver_bmp390.h"
+#include "hardware/i2c.h"
+#include "hardware/spi.h"
+#include "hardware/gpio.h"
+#include "pico/stdlib.h"
+#include "pico/stdio.h"
+
 
 #ifdef __cplusplus
 extern "C"{
 #endif
+
+typedef struct {
+    i2c_inst_t *port;
+    uint8_t sda_pin;
+    uint8_t scl_pin;
+    uint8_t cs_pin;
+    uint32_t baudrate;    
+} bmp390_iic_config_t;
+
+typedef struct {
+    spi_inst_t *port;
+    uint baudrate;
+    uint8_t cs_pin;
+    uint8_t scl_pin;
+    uint8_t sdo_pin;
+    uint8_t sdi_pin;
+} bmp390_spi_config_t;
+
+
+void bmp390_interface_iic_set_config(const bmp390_iic_config_t cfg);
+void bmp390_interface_spi_set_config(const bmp390_spi_config_t cfg);
 
 /**
  * @defgroup bmp390_interface_driver bmp390 interface driver function
@@ -50,6 +77,7 @@ extern "C"{
  * @{
  */
 
+ 
 /**
  * @brief  interface iic bus init
  * @return status code

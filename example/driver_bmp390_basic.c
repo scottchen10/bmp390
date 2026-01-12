@@ -39,6 +39,35 @@
 static bmp390_handle_t gs_handle;        /**< bmp390 handle */
 
 /**
+ * @brief bmp390 configuration based on 3.5 Drone Filter selection
+ */
+#define BMP390_BASIC_DEFAULT_SPI_WIRE                 BMP390_SPI_WIRE_4                /**< 4 wire spi */
+#define BMP390_BASIC_DEFAULT_IIC_WATCHDOG_TIMER       BMP390_BOOL_TRUE                 /**< enable iic watchdog timer */
+#define BMP390_BASIC_DEFAULT_IIC_WATCHDOG_PERIOD      BMP390_IIC_WATCHDOG_PERIOD_40_MS /**< set watchdog timer period 40ms */
+#define BMP390_BASIC_DEFAULT_PRESSURE                 BMP390_BOOL_TRUE                 /**< enable pressure **/
+#define BMP390_BASIC_DEFAULT_TEMPERATURE              BMP390_BOOL_TRUE                 /**< enable temperature */
+#define BMP390_BASIC_DEFAULT_PRESSURE_OVERSAMPLING    BMP390_OVERSAMPLING_x8           /**< pressure oversampling x32 */
+#define BMP390_BASIC_DEFAULT_TEMPERATURE_OVERSAMPLING BMP390_OVERSAMPLING_x1           /**< temperature oversampling x1 */
+#define BMP390_BASIC_DEFAULT_ODR                      BMP390_ODR_50_HZ                 /**< output data rate 50z */
+#define BMP390_BASIC_DEFAULT_FILTER_COEFFICIENT       BMP390_FILTER_COEFFICIENT_3      /**< set filter coefficient 15 */
+
+void bmp390_device_config_set_defaults(bmp390_device_config_t *config)
+{
+    config->bus_type = BMP390_INTERFACE_IIC;
+    config->i2c_device_addr = BMP390_ADDRESS_ADO_LOW;
+    config->spi_wire_type = BMP390_BASIC_DEFAULT_SPI_WIRE;
+    config->enable_i2c_watchdog_timer = BMP390_BASIC_DEFAULT_IIC_WATCHDOG_PERIOD;
+    config->i2c_watch_dog_period = BMP390_BASIC_DEFAULT_IIC_WATCHDOG_PERIOD;
+    config->enable_pressure_measurements = BMP390_BASIC_DEFAULT_PRESSURE;                
+    config->enable_temperature_measurements = BMP390_BASIC_DEFAULT_TEMPERATURE;
+    config->pressure_oversampling = BMP390_BASIC_DEFAULT_PRESSURE_OVERSAMPLING;
+    config->temperature_oversampling = BMP390_BASIC_DEFAULT_TEMPERATURE_OVERSAMPLING;
+    config->output_data_rate = BMP390_BASIC_DEFAULT_ODR;
+    config->filter_coefficient = BMP390_BASIC_DEFAULT_FILTER_COEFFICIENT;
+};
+
+
+/**
  * @brief     basic example init
  * @param[in] interface chip interface
  * @param[in] addr_pin iic device address
@@ -47,7 +76,7 @@ static bmp390_handle_t gs_handle;        /**< bmp390 handle */
  *            - 1 init failed
  * @note      none
  */
-uint8_t bmp390_basic_init(bmp390_interface_t interface, bmp390_address_t addr_pin)
+uint8_t bmp390_basic_init(bmp390_device_config_t config)
 {
     uint8_t res;
     
@@ -66,7 +95,7 @@ uint8_t bmp390_basic_init(bmp390_interface_t interface, bmp390_address_t addr_pi
     DRIVER_BMP390_LINK_RECEIVE_CALLBACK(&gs_handle, bmp390_interface_receive_callback);
     
     /* set interface */
-    res = bmp390_set_interface(&gs_handle, interface);
+    res = bmp390_set_interface(&gs_handle, config.bus_type);
     if (res != 0)
     {
         bmp390_interface_debug_print("bmp390: set interface failed.\n");
@@ -75,7 +104,7 @@ uint8_t bmp390_basic_init(bmp390_interface_t interface, bmp390_address_t addr_pi
     }
     
     /* set addr pin */
-    res = bmp390_set_addr_pin(&gs_handle, addr_pin);
+    res = bmp390_set_addr_pin(&gs_handle, config.i2c_device_addr);
     if (res != 0)
     {
         bmp390_interface_debug_print("bmp390: set addr pin failed.\n");
@@ -93,7 +122,7 @@ uint8_t bmp390_basic_init(bmp390_interface_t interface, bmp390_address_t addr_pi
     }
     
     /* set default spi wire */
-    res = bmp390_set_spi_wire(&gs_handle, BMP390_BASIC_DEFAULT_SPI_WIRE);
+    res = bmp390_set_spi_wire(&gs_handle, config.spi_wire_type);
     if (res != 0)
     {
         bmp390_interface_debug_print("bmp390: set spi wire failed.\n");
@@ -103,7 +132,7 @@ uint8_t bmp390_basic_init(bmp390_interface_t interface, bmp390_address_t addr_pi
     }
     
     /* set default iic watchdog timer */
-    res = bmp390_set_iic_watchdog_timer(&gs_handle, BMP390_BASIC_DEFAULT_IIC_WATCHDOG_TIMER);
+    res = bmp390_set_iic_watchdog_timer(&gs_handle, config.enable_i2c_watchdog_timer);
     if (res != 0)
     {
         bmp390_interface_debug_print("bmp390: set iic watchdog timer failed.\n");
@@ -113,7 +142,7 @@ uint8_t bmp390_basic_init(bmp390_interface_t interface, bmp390_address_t addr_pi
     }
     
     /* set default iic watchdog period */
-    res = bmp390_set_iic_watchdog_period(&gs_handle, BMP390_BASIC_DEFAULT_IIC_WATCHDOG_PERIOD);
+    res = bmp390_set_iic_watchdog_period(&gs_handle, config.i2c_watch_dog_period);
     if (res != 0)
     {
         bmp390_interface_debug_print("bmp390: set iic watchdog period failed.\n");
@@ -163,7 +192,7 @@ uint8_t bmp390_basic_init(bmp390_interface_t interface, bmp390_address_t addr_pi
     }
     
     /* set default pressure */
-    res = bmp390_set_pressure(&gs_handle, BMP390_BASIC_DEFAULT_PRESSURE);
+    res = bmp390_set_pressure(&gs_handle, config.enable_pressure_measurements);
     if (res != 0)
     {
         bmp390_interface_debug_print("bmp390: set pressure failed.\n");
@@ -173,7 +202,7 @@ uint8_t bmp390_basic_init(bmp390_interface_t interface, bmp390_address_t addr_pi
     }
     
     /* set default temperature */
-    res = bmp390_set_temperature(&gs_handle, BMP390_BASIC_DEFAULT_TEMPERATURE);
+    res = bmp390_set_temperature(&gs_handle, config.enable_temperature_measurements);
     if (res != 0)
     {
         bmp390_interface_debug_print("bmp390: set temperature failed.\n");
@@ -183,7 +212,7 @@ uint8_t bmp390_basic_init(bmp390_interface_t interface, bmp390_address_t addr_pi
     }
     
     /* set default pressure oversampling */
-    res = bmp390_set_pressure_oversampling(&gs_handle, BMP390_BASIC_DEFAULT_PRESSURE_OVERSAMPLING);
+    res = bmp390_set_pressure_oversampling(&gs_handle, config.pressure_oversampling);
     if (res != 0)
     {
         bmp390_interface_debug_print("bmp390: set pressure oversampling failed.\n");
@@ -193,7 +222,7 @@ uint8_t bmp390_basic_init(bmp390_interface_t interface, bmp390_address_t addr_pi
     }
     
     /* set default temperature oversampling */
-    res = bmp390_set_temperature_oversampling(&gs_handle, BMP390_BASIC_DEFAULT_TEMPERATURE_OVERSAMPLING);
+    res = bmp390_set_temperature_oversampling(&gs_handle, config.temperature_oversampling);
     if (res != 0)
     {
         bmp390_interface_debug_print("bmp390: set temperature oversampling failed.\n");
@@ -203,7 +232,7 @@ uint8_t bmp390_basic_init(bmp390_interface_t interface, bmp390_address_t addr_pi
     }
     
     /* set default odr */
-    res = bmp390_set_odr(&gs_handle, BMP390_BASIC_DEFAULT_ODR);
+    res = bmp390_set_odr(&gs_handle, config.output_data_rate);
     if (res != 0)
     {
         bmp390_interface_debug_print("bmp390: set odr failed.\n");
@@ -213,7 +242,7 @@ uint8_t bmp390_basic_init(bmp390_interface_t interface, bmp390_address_t addr_pi
     }
     
     /* set default filter coefficient */
-    res = bmp390_set_filter_coefficient(&gs_handle, BMP390_BASIC_DEFAULT_FILTER_COEFFICIENT);
+    res = bmp390_set_filter_coefficient(&gs_handle, config.filter_coefficient);
     if (res != 0)
     {
         bmp390_interface_debug_print("bmp390: set filter coefficient failed.\n");
@@ -280,3 +309,16 @@ uint8_t bmp390_basic_deinit(void)
         return 0;
     }
 }
+
+
+uint8_t bmp390_basic_read_status(uint8_t *status)
+{
+    if (bmp390_get_status(&gs_handle, status))
+    {
+        return 1;
+    }
+    else
+    {
+        return 0;
+    }    
+};
