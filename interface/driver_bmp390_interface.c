@@ -65,10 +65,6 @@ uint8_t bmp390_interface_iic_init(void)
     gpio_pull_up(g_bmp390_iic_cfg.scl_pin);
     gpio_pull_up(g_bmp390_iic_cfg.sda_pin);
 
-    gpio_init(g_bmp390_iic_cfg.cs_pin);
-    gpio_set_dir(g_bmp390_iic_cfg.cs_pin, GPIO_OUT);
-    gpio_put(g_bmp390_iic_cfg.cs_pin, 1);
-
     return 0;
 }
 

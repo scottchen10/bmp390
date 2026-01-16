@@ -53,7 +53,6 @@ typedef struct {
     i2c_inst_t *port;
     uint8_t sda_pin;
     uint8_t scl_pin;
-    uint8_t cs_pin;
     uint32_t baudrate;    
 } bmp390_iic_config_t;
 
